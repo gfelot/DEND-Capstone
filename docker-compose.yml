@@ -5,15 +5,15 @@ services:
     volumes:
       - ./db:/var/lib/postgresql/data
     environment:
-      - POSTGRES_USER=airflow
-      - POSTGRES_PASSWORD=airflow
-      - POSTGRES_DB=airflow
+      - POSTGRES_USER=${POSTGRES_USER:-airflow}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-airflow}
+      - POSTGRES_DB=${POSTGRES_DB:-airflow}
 
   pgadmin:
     image: dpage/pgadmin4:latest
     environment:
-      - PGADMIN_DEFAULT_EMAIL=gil@udacity.com
-      - PGADMIN_DEFAULT_PASSWORD=qwerty123
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_EMAIL:-gil@udacity.com}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD:-qwerty123}
     depends_on:
       - postgres
     ports:
@@ -23,7 +23,7 @@ services:
     image: jupyter/scipy-notebook
     environment:
       NB_UID: ${NB_UID:-1000}
-      JUPYTER_TOKEN: udacity
+      JUPYTER_TOKEN: ${JUPYTER_TOKEN:-udacity}
     user: root
     volumes:
       - ./notebooks:/home/jovyan/work
@@ -33,7 +33,7 @@ services:
   webserver:
     image: godatadriven/airflow:latest
     environment:
-      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${POSTGRES_USER:-airflow}:${POSTGRES_PASSWORD:-airflow}@postgres:5432/${POSTGRES_DB:-airflow}
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - WAIT_FOR=postgres:5432
     depends_on:
@@ -49,7 +49,7 @@ services:
   scheduler:
     image: godatadriven/airflow:latest
     environment:
-      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${POSTGRES_USER:-airflow}:${POSTGRES_PASSWORD:-airflow}@postgres:5432/${POSTGRES_DB:-airflow}
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - WAIT_FOR=webserver:8080
     depends_on:

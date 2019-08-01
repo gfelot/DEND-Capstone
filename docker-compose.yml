@@ -42,6 +42,7 @@ services:
       - ./dags:/root/airflow/dags
       - ./plugins:/root/airflow/plugins
       - ./logs:/root/airflow/logs
+      - ./environment.yml:/dependencies/environment.yml
     ports:
       - "8080:8080"
     command: upgradedb_webserver
@@ -58,4 +59,5 @@ services:
       - ./dags:/root/airflow/dags
       - ./plugins:/root/airflow/plugins
       - ./logs:/root/airflow/logs
+      - ./environment.yml:/dependencies/environment.yml
     command: scheduler

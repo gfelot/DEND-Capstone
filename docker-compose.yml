@@ -26,7 +26,8 @@ services:
       JUPYTER_TOKEN: ${JUPYTER_TOKEN:-udacity}
     user: root
     volumes:
-      - ./notebooks:/home/jovyan/work
+      - ./notebooks:/home/jovyan
+      - ./dataset/Iowa_Liquor_Sales.csv:/home/jovyan/dataset/dataset.csv
     ports:
       - "8888:8888"
 

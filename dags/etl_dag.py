@@ -7,10 +7,10 @@ from pandas import UInt32Dtype
 
 default_args = {
     'owner': 'gil',
-    'start_date': datetime(2016, 9, 4),
+    'start_date': datetime(2019, 8, 7),
     'depends_on_past': False,
     'retries': 5,
-    'retry_delay': timedelta(minutes=2),
+    'retry_delay': timedelta(minutes=1),
     'email_on_retry': False
 }
 
@@ -46,9 +46,11 @@ with DAG('__e-commerce_etl',
          default_args=default_args,
          description='Load and transform data in a local Postgres Database with AirFlow',
          catchup=False,
-         schedule_interval='0 * * * *'
+         schedule_interval='* 0 * * *'
          ) as dag:
     start_operator = DummyOperator(task_id='Begin_execution')
+
+    # dump_file = DummyOperator(task_id='Dump_file')
 
     dump_file = DumpCsvFileToPostgres(
         task_id='Dump_file',
@@ -73,6 +75,7 @@ with DAG('__e-commerce_etl',
     load_calendar_dim_table = DummyOperator(task_id='Load_calendar_dim_table')
 
     quality_check_1 = DummyOperator(task_id='quality_check_1')
+
     quality_check_2 = DummyOperator(task_id='quality_check_2')
 
     end_operator = DummyOperator(task_id='Stop_execution')

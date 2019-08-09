@@ -27,7 +27,7 @@ services:
     user: root
     volumes:
       - ./notebooks:/home/jovyan
-      - ./dataset/Iowa_Liquor_Sales.csv:/home/jovyan/dataset/dataset.csv
+      - ./dataset:/home/jovyan/dataset
     ports:
       - "8888:8888"
 
@@ -43,6 +43,7 @@ services:
       - ./dags:/root/airflow/dags
       - ./plugins:/root/airflow/plugins
       - ./logs:/root/airflow/logs
+      - ./airflow.cfg:/root/airflow/airflow.cfg
       - ./environment.yml:/dependencies/environment.yml
     ports:
       - "8080:8080"
@@ -61,5 +62,6 @@ services:
       - ./plugins:/root/airflow/plugins
       - ./logs:/root/airflow/logs
       - ./environment.yml:/dependencies/environment.yml
-      - ./dataset/Iowa_Liquor_Sales.csv:/root/airflow/dataset/dataset.csv
+      - ./airflow.cfg:/root/airflow/airflow.cfg
+      - ./dataset:/root/airflow/dataset
     command: scheduler

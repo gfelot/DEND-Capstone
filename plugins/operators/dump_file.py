@@ -25,7 +25,7 @@ class DumpCsvFileToPostgres(BaseOperator):
         return pd.to_numeric(col, downcast='unsigned')
 
     def execute(self, context):
-        engine = create_engine(self.db_connect, echo=True)
+        engine = create_engine(self.db_connect, echo=False)
 
         self.log.info('Drop table')
         sql = f'DROP TABLE IF EXISTS {self.table_name}'
@@ -95,6 +95,6 @@ class DumpCsvFileToPostgres(BaseOperator):
                 .str.replace(' ', '_').str.replace('(', '').str.replace(')', '')
 
             # Last step -> dump file into postgres
-            self.log.info('Send chunk to DB')
-            df.to_sql(self.table_name, con=engine, if_exists='append')
+            # self.log.info('Send chunk to DB')
+            # df.to_sql(self.table_name, con=engine, if_exists='append')
             self.log.info('#' * 60)

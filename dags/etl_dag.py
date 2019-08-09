@@ -1,9 +1,14 @@
 from datetime import datetime, timedelta
+import logging
 from airflow import DAG
 from airflow.operators.dummy_operator import DummyOperator
-from airflow.operators import (DumpCsvFileToPostgres)
+from airflow.operators.python_operator import PythonOperator
+# from airflow.operators import (StageToRedshiftOperator)
+from airflow.hooks.S3_hook import S3Hook
+from airflow.models import Variable
 from numpy import uint32, float32
 from pandas import UInt32Dtype
+# from helpers import SqlQueries
 
 default_args = {
     'owner': 'gil',
@@ -41,6 +46,15 @@ datatype = {"Invoice/Item Number": str,
 
 cols = list(datatype.keys())
 
+def list_key():
+    # Get the value from the admin -> connection panel
+    hook = S3Hook(aws_conn_id='aws_credentials')
+    bucket = Variable.get('s3_bucket')
+    logging.info(f'Listing S3 {bucket}')
+    keys = hook.list_keys(bucket)
+    for k in keys:
+        logging.info(f'- s3://{bucket}/{k}')
+
 # Using the context manager allows me not to duplicate the dag parameter in each operator
 with DAG('__e-commerce_etl',
          default_args=default_args,
@@ -50,20 +64,29 @@ with DAG('__e-commerce_etl',
          ) as dag:
     start_operator = DummyOperator(task_id='Begin_execution')
 
-    # dump_file = DummyOperator(task_id='Dump_file')
-
-    dump_file = DumpCsvFileToPostgres(
-        task_id='Dump_file',
-        file_path='/root/airflow/dataset/dataset.csv',
-        datatype=datatype,
-        colsname=cols,
-        db_connect='postgresql+psycopg2://airflow:airflow@postgres:5432',
-        table_name='yolo'
+    stage_to_redshift = PythonOperator(
+        task_id='list_S3_keys',
+        python_callable=list_key
     )
 
-    stage_csv = DummyOperator(task_id='Stage_csv')
+    # stage_events_to_redshift = StageToRedshiftOperator(
+    #     task_id='Stage_csv_to_redshift',
+    #     table='staging',
+    #     redshift_conn_id='redshift',
+    #     aws_credentials_id='aws_credentials',
+    #     s3_bucket='ucapstone-dend',
+    #     s3_key='dataset',
+    #     sql=SqlQueries.stage_to_redshift
+    # )
 
-    geocoding_sellers = DummyOperator(task_id='Geocoding_sellers')
+    # dump_file = DumpCsvFileToPostgres(
+    #     task_id='Dump_file',
+    #     file_path='/root/airflow/dataset/dataset.csv',
+    #     datatype=datatype,
+    #     colsname=cols,
+    #     db_connect='postgresql+psycopg2://airflow:airflow@postgres:5432',
+    #     table_name='yolo'
+    # )
 
     load_sales_fact_table = DummyOperator(task_id='Load_sales_fact_table')
 
@@ -73,6 +96,8 @@ with DAG('__e-commerce_etl',
     load_counties_dim_table = DummyOperator(task_id='Load_counties_dim_table')
     load_vendors_dim_table = DummyOperator(task_id='Load_vendors_dim_table')
     load_calendar_dim_table = DummyOperator(task_id='Load_calendar_dim_table')
+
+    geocoding_sellers = DummyOperator(task_id='Geocoding_sellers')
 
     quality_check_1 = DummyOperator(task_id='quality_check_1')
 
@@ -91,7 +116,7 @@ dim_tables = [
     load_calendar_dim_table
 ]
 
-start_operator >> dump_file >> stage_csv
-stage_csv >> dim_tables >> load_sales_fact_table
+start_operator >> stage_to_redshift
+stage_to_redshift >> dim_tables >> load_sales_fact_table
 load_sales_fact_table >> geocoding_sellers
 geocoding_sellers >> quality_check_1 >> quality_check_2 >> end_operator

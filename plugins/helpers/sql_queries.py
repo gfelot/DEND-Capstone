@@ -191,3 +191,15 @@ class SqlQueries:
             PRIMARY KEY(date, day, month, year)
         );
     """)
+
+    stage_to_redshift = ("""
+                COPY {}
+                FROM '{}'
+                ACCESS_KEY_ID '{}'
+                SECRET_ACCESS_KEY '{}'
+                IGNOREHEADER {}
+                TIMEFORMAT as 'epochmillisecs'
+                TRUNCATECOLUMNS BLANKSASNULL EMPTYASNULL
+                REGION 'eu-west-3'
+                DELIMITER '{}'
+            """)

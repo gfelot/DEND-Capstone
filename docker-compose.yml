@@ -61,4 +61,5 @@ services:
       - ./plugins:/root/airflow/plugins
       - ./logs:/root/airflow/logs
       - ./environment.yml:/dependencies/environment.yml
+      - ./dataset/Iowa_Liquor_Sales.csv:/root/airflow/dataset/dataset.csv
     command: scheduler

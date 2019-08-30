@@ -19,11 +19,11 @@ You can save your own copy on your drive if you have permission issue to launch 
 
 Additionally you will find a `.ipynb` file with the ful project if you prefer to run it locally
 > You need to change, in this case, the method to upload the .csv file for the AWS credential.
-> You also need a local installation of Spark or setup a cluster on the cloud
+> You also need a local installation of Spark or setup a cluster on the cloud and the setup code accordingly
 
 ## Project summary
 This project use a slightly modified version of the Iowa Liquor Sales from Kaggle (more info in the Collab Notebook).
-The goal is the ETL this file of 3.5Go into a schema more suitable for data analyse. For a flat file to s star schema, ready to be consume for Data Analyst or Data Scientist.
+The goal is to ETL this file of 3.5Go into a schema more suitable for data analysis. From a flat file to a star schema, ready to be consume for a Data Analyst or a Data Scientist.
 
 ![Star Schema](./StarSchema.png)
 
@@ -35,7 +35,7 @@ The focus will be on the sales with the ability to slice/dice the data in differ
 The dataset is too big to be wrangle by pandas only but don't need a big Hadoop cluster either. That's why I choose to use spark locally with all the core available on the system.
 
 ## Future proof scenario
-Even if this dataset is big, it cannot be labelled as Big Data. If I had 100x times the Go I would havr to set up a real Spark cluster like with AWS EMR.
+Even if this dataset is big, it cannot be labelled as Big Data. If I had 100x times the Go I would have to set up a real Spark cluster like with AWS EMR.
 
 Also this data set is a one time file, but in a real case with data that would come every day from report I would setup a daily workflow with AirFlow and split all the logic included in this notebook in several task in a `@daily` DAG.
 

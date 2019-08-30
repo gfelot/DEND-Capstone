@@ -1,12 +1,13 @@
 # Perso
 .DS_Store
 .idea/
-*.cfg
+# *.cfg
 notebooks/dataset
 **.conda/
 **.config/
 **.ipython/
 **.local/
+*#
 
 # Project Specific
 db/*
